@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="csvfile" format="csv">
+      <types:shape format="weave" example="examples/sample.csv"><![CDATA[%dw 2.0
+
+type csvfile = Array<{|  Direction: String,   Year: Number,   Date: String,   Weekday: String,   Country: String,   Commodity: String,   Transport_Mode: String,   Measure: String,   Value: Number,   Cumulative: Number|}> {"isQuotedString": "false",
+"header": "true",
+"headerLineNumber": "0"}
+
+]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+      </types:properties>
+    </types:type>
+    <types:type name="jsonfile" format="json">
+      <types:shape format="weave" example="examples/new 2.json"><![CDATA[%dw 2.0
+
+type jsonfile = Array<{|  direction: String,   year: Number {"typeId": "int"},   date: String,   weekday: String,   country: String,   commodity: String,   transport_Mode: String,   measure: String,   valuerate: Number {"typeId": "int"},   cumulative: Number {"typeId": "int"}|}> {"example": "[{\\\"direction\\\":\\\"Exports\\\",\\\"year\\\":2015,\\\"date\\\":\\\"01\\/01\\/2015\\\",\\\"weekday\\\":\\\"Thursday\\\",\\\"country\\\":\\\"All\\\",\\\"commodity\\\":\\\"All\\\",\\\"transport_Mode\\\":\\\"All\\\",\\\"measure\\\":\\\"\$\\\",\\\"valuerate\\\":104000000,\\\"cumulative\\\":104000000},{\\\"direction\\\":\\\"Exports\\\",\\\"year\\\":2015,\\\"date\\\":\\\"01\\/01\\/2015\\\",\\\"weekday\\\":\\\"Thursday\\\",\\\"country\\\":\\\"All\\\",\\\"commodity\\\":\\\"All\\\",\\\"transport_Mode\\\":\\\"All\\\",\\\"measure\\\":\\\"\$\\\",\\\"valuerate\\\":104000000,\\\"cumulative\\\":104000000},{\\\"direction\\\":\\\"Exports\\\",\\\"year\\\":2015,\\\"date\\\":\\\"01\\/01\\/2015\\\",\\\"weekday\\\":\\\"Thursday\\\",\\\"country\\\":\\\"All\\\",\\\"commodity\\\":\\\"All\\\",\\\"transport_Mode\\\":\\\"All\\\",\\\"measure\\\":\\\"\$\\\",\\\"valuerate\\\":104000000,\\\"cumulative\\\":104000000}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#a2a3cf12-ee95-4e38-bc7a-e438fbb141e7">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="csvfile"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="jsonfile"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
