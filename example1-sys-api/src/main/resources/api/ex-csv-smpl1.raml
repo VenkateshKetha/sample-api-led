@@ -1,0 +1,20 @@
+#%RAML 1.0
+title: ex-csv-smpl1
+version: v1
+description: effects of covid on trade in world
+/trade-effects:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            type: !include datatypes/dataType1.raml
+            examples: !include example/example1.raml
+  /{country}:
+    get:
+      responses:
+       200:
+        body:
+          application/json:
+            type: !include datatypes/dataType1.raml
+            examples: !include example/example1.raml     
