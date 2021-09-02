@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="58e820b6-f60a-4534-a0c4-f75170576892" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="7176d7f5-6170-4575-bdc9-71b931f7ae91" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="2aec619a-3ed2-4617-8a5a-e914d93a71bf" />
+	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="920f232e-1507-4980-9aa7-9e84c7363190" >
+		<http:request-connection host="localhost" port="8083" />
+	</http:request-config>
+	<flow name="example1-procs-apiFlow" doc:id="e187b549-6e91-448d-86be-d95c14a6281d" >
+		<http:listener doc:name="Listener" doc:id="5a8a403a-6604-4398-88c3-12fbfa31127a" config-ref="HTTP_Listener_config" path="/trade-details"/>
+		<http:request method="GET" doc:name="Request" doc:id="a34105c0-768f-4f67-906f-e56388ab92d3" config-ref="HTTP_Request_configuration" path="/api/trade-effects"/>
+		<ee:transform doc:name="Transform Message" doc:id="32ca24ee-c6d6-4a79-990d-d277a41bf627" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="sending-read-data-system" doc:id="b9acc118-47c4-4f25-8a78-23a8d28a67a8" >
+		<http:listener doc:name="Listener" doc:id="05173287-1950-41d9-901b-ac0f812e34cf" config-ref="HTTP_Listener_config" path="/senddata"/>
+		<file:read doc:name="Read" doc:id="efe13899-3d0f-4220-b97b-3072204bb850" config-ref="File_Config" path="C:\Users\VENKATESH\Downloads\effects-of-covid-19-on-trade-at-21-July-2021-provisional.csv"/>
+		<ee:transform doc:name="Transform Message" doc:id="4d902e61-c66a-4969-aac3-2f4bc997aae8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="723fb0a4-88f7-4d00-ae0a-6ce3e4663bb8" variableName="tradedata"/>
+		<http:request method="POST" doc:name="Request" doc:id="24257d53-79e9-4a8e-be9f-921d92981053" config-ref="HTTP_Request_configuration1" path="/api/post-trade-details">
+		</http:request>
+	</flow>
+	<flow name="example1-procs-apiFlow1" doc:id="a2b3c373-a00b-42f7-89d7-f47950d7bc4e" >
+		<http:listener doc:name="Listener" doc:id="f09b6982-943b-4628-9aef-63ca22c3ef60" config-ref="HTTP_Listener_config" path="/trade/{country}"/>
+		<http:request method="GET" doc:name="Request" doc:id="86a93090-69ac-41a6-90fc-4803d5595346" config-ref="HTTP_Request_configuration" path="/api/trade-effects/{country}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"country" : attributes.uriParams.'country'
+}]]]></http:uri-params>
+		</http:request>
+	</flow>
+</mule>
